@@ -4,19 +4,47 @@ import common.Person;
 import common.Task;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
+/**
+ * Пример взял из презентации
+ * отдельный класс, достаточно объёмно получилось
+ * тернарный оператор не использовал, потому что 3 сравнения нужно
+ */
+class PersonCompare implements Comparator<Person> {
+  @Override
+  public int compare(Person p1, Person p2) {
+    int secondNameComp = p1.getSecondName().compareTo(p2.getSecondName());
+    if (secondNameComp != 0) {
+      return secondNameComp;
+    }
+    int firstNameComp = p1.getFirstName().compareTo(p2.getFirstName());
+    if (firstNameComp != 0) {
+      return firstNameComp;
+    }
+    int createdAtComp = p1.getCreatedAt().compareTo(p2.getCreatedAt());
+    return createdAtComp;
+  }
+}
 /*
 Задача 3
 Отсортировать коллекцию сначала по фамилии, по имени (при равной фамилии), и по дате создания (при равных фамилии и имени)
  */
 public class Task3 implements Task {
 
-  // !!! Редактируйте этот метод !!!
+  /**
+   * stream api потому что Collection в любом случае надо преобразовывать перед сортировкой
+   * @param persons
+   * @return
+   */
   private List<Person> sort(Collection<Person> persons) {
-    return new ArrayList<>(persons);
+    return persons
+      .stream()
+      .sorted(new PersonCompare())
+      .collect(Collectors.toList());
   }
 
   @Override

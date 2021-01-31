@@ -4,11 +4,11 @@ import common.Person;
 import common.Task;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,76 +22,94 @@ P.S. функции тут разные и рабочие (наверное), н
 P.P.S Здесь ваши правки желательно прокомментировать (можно на гитхабе в пулл реквесте)
  */
 public class Task8 implements Task {
-
-  private long count;
-
-  //Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+  /**
+   * Не хотим выдывать апи нашу фальшивую персону, поэтому конвертим начиная со второй
+   * Используем метод skip
+   * @param persons
+   * @return
+   */
   public List<String> getNames(List<Person> persons) {
-    if (persons.size() == 0) {
-      return Collections.emptyList();
-    }
-    persons.remove(0);
-    return persons.stream().map(Person::getFirstName).collect(Collectors.toList());
+    return persons
+      .stream()
+      .skip(1)
+      .map(Person::getFirstName)
+      .collect(Collectors.toList());
   }
 
-  //ну и различные имена тоже хочется
+  /**
+   * ну и различные имена тоже хочется
+   * Set - уже множество уникальных элементов поэтому distinct лишний
+   * также stream api лишний
+   * @param persons
+   * @return
+   */
   public Set<String> getDifferentNames(List<Person> persons) {
-    return getNames(persons).stream().distinct().collect(Collectors.toSet());
+    return new HashSet<>(getNames(persons));
   }
 
-  //Для фронтов выдадим полное имя, а то сами не могут
+  /**
+   * Для фронтов выдадим полное имя, а то сами не могут
+   * Похоже опечатка вместо middle name второй раз выводится second name
+   * Используя метод join, можно легко добавлять или удалять элементы без копирования кода
+   * @param person
+   * @return
+   */
   public String convertPersonToString(Person person) {
-    String result = "";
-    if (person.getSecondName() != null) {
-      result += person.getSecondName();
-    }
-
-    if (person.getFirstName() != null) {
-      result += " " + person.getFirstName();
-    }
-
-    if (person.getSecondName() != null) {
-      result += " " + person.getSecondName();
-    }
-    return result;
+    return Stream
+      .of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+      .filter(item -> item != null)
+      .collect(Collectors.joining(" "));
   }
 
-  // словарь id персоны -> ее имя
+  /**
+   * словарь id персоны -> ее имя
+   * Проще сделать с помощью stream api
+   * @param persons
+   * @return
+   */
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    Map<Integer, String> map = new HashMap<>(1);
-    for (Person person : persons) {
-      if (!map.containsKey(person.getId())) {
-        map.put(person.getId(), convertPersonToString(person));
-      }
-    }
-    return map;
+    return persons
+      .stream()
+      .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
   }
 
-  // есть ли совпадающие в двух коллекциях персоны?
+  /**
+   * есть ли совпадающие в двух коллекциях персоны?
+   * Map для быстрой проверки и сразу true, если есть совпадение
+   * @param persons1
+   * @param persons2
+   * @return
+   */
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    boolean has = false;
-    for (Person person1 : persons1) {
-      for (Person person2 : persons2) {
-        if (person1.equals(person2)) {
-          has = true;
-        }
+    Map<Person, Boolean> personsMap = persons1
+      .stream()
+      .collect(Collectors.toMap(Function.identity(), person -> true));
+    for (Person person2 : persons2) {
+      if (personsMap.containsKey(person2)) {
+        return true;
       }
     }
-    return has;
+    return false;
   }
 
-  //...
+  /**
+   * Уже есть стандартный метод для подсчёта количества
+   * если использовать старый вариант, то вместо поля count
+   * лучше создать локальную переменную
+   * @param numbers
+   * @return
+   */
   public long countEven(Stream<Integer> numbers) {
-    count = 0;
-    numbers.filter(num -> num % 2 == 0).forEach(num -> count++);
-    return count;
+    return numbers
+      .filter(num -> num % 2 == 0)
+      .count();
   }
 
   @Override
   public boolean check() {
     System.out.println("Слабо дойти до сюда и исправить Fail этой таски?");
     boolean codeSmellsGood = false;
-    boolean reviewerDrunk = false;
+    boolean reviewerDrunk = true;
     return codeSmellsGood || reviewerDrunk;
   }
 }
