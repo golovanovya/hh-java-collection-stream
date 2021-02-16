@@ -5,16 +5,24 @@ import common.Task;
 import common.Vacancy;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Из коллекции компаний необходимо получить всевозможные различные названия вакансий
  */
 public class Task7 implements Task {
 
+  /**
+   * Получаю списки вакансий, а потом делаю из них плоское множество, которое фильтрует повторы
+   * @param companies
+   * @return
+   */
   private Set<String> vacancyNames(Collection<Company> companies) {
-    return new HashSet<>();
+    return companies.stream()
+      .map(Company::getVacancies)
+      .flatMap(vacancies -> vacancies.stream().map(Vacancy::getTitle))
+      .collect(Collectors.toSet());
   }
 
   @Override

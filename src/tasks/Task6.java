@@ -6,10 +6,10 @@ import common.Task;
 
 import java.time.Instant;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /*
 Имеются
@@ -20,10 +20,29 @@ import java.util.Set;
  */
 public class Task6 implements Task {
 
-  private Set<String> getPersonDescriptions(Collection<Person> persons,
-                                            Map<Integer, Set<Integer>> personAreaIds,
-                                            Collection<Area> areas) {
-    return new HashSet<>();
+  /**
+   * Делаю map для сопоставления регионов
+   * Создаю коллекцию множеств для персон
+   * Затем преобразую их в плоское множество
+   * 
+   * @param persons
+   * @param personAreaIds
+   * @param areas
+   * @return
+   */
+  private Set<String> getPersonDescriptions(
+    Collection<Person> persons,
+    Map<Integer, Set<Integer>> personAreaIds,
+    Collection<Area> areas
+  ) {
+    Map<Integer, String> areasMap = areas.stream()
+      .collect(Collectors.toMap(Area::getId, area -> area.getName()));
+    return persons.stream()
+      .flatMap(
+        person -> personAreaIds.get(person.getId()).stream()
+          .map(regionId -> person.getFirstName() + " - " + areasMap.get(regionId))
+      )
+      .collect(Collectors.toSet());
   }
 
   @Override
