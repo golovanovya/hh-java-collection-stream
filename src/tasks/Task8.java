@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -29,8 +29,7 @@ public class Task8 implements Task {
    * @return
    */
   public List<String> getNames(List<Person> persons) {
-    return persons
-      .stream()
+    return persons.stream()
       .skip(1)
       .map(Person::getFirstName)
       .collect(Collectors.toList());
@@ -55,9 +54,8 @@ public class Task8 implements Task {
    * @return
    */
   public String convertPersonToString(Person person) {
-    return Stream
-      .of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
-      .filter(item -> item != null)
+    return Stream.of(person.getSecondName(), person.getFirstName(), person.getMiddleName())
+      .filter(Objects::nonNull)
       .collect(Collectors.joining(" "));
   }
 
@@ -68,9 +66,8 @@ public class Task8 implements Task {
    * @return
    */
   public Map<Integer, String> getPersonNames(Collection<Person> persons) {
-    return persons
-      .stream()
-      .collect(Collectors.toMap(Person::getId, this::convertPersonToString));
+    return persons.stream()
+      .collect(Collectors.toMap(Person::getId, this::convertPersonToString, (o1, o2) -> o1));
   }
 
   /**
@@ -81,15 +78,8 @@ public class Task8 implements Task {
    * @return
    */
   public boolean hasSamePersons(Collection<Person> persons1, Collection<Person> persons2) {
-    Map<Person, Boolean> personsMap = persons1
-      .stream()
-      .collect(Collectors.toMap(Function.identity(), person -> true));
-    for (Person person2 : persons2) {
-      if (personsMap.containsKey(person2)) {
-        return true;
-      }
-    }
-    return false;
+    return persons1.stream()
+      .anyMatch(new HashSet<>(persons2)::contains);
   }
 
   /**
@@ -100,8 +90,7 @@ public class Task8 implements Task {
    * @return
    */
   public long countEven(Stream<Integer> numbers) {
-    return numbers
-      .filter(num -> num % 2 == 0)
+    return numbers.filter(num -> num % 2 == 0)
       .count();
   }
 

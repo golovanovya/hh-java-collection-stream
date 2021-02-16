@@ -31,11 +31,10 @@ public class Task1 implements Task {
    * @return persons
    */
   private List<Person> findOrderedPersons(List<Integer> personIds) {
-    Map<Integer, Person> personMap = PersonService.findPersons(personIds)
-      .stream()
+    Map<Integer, Person> personMap = PersonService.findPersons(personIds).stream()
       .collect(Collectors.toMap(Person::getId, Function.identity()));
     return personIds.stream()
-      .map(id -> personMap.get(id))
+      .map(personMap::get)
       .collect(Collectors.toList());
   }
 

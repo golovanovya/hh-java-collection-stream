@@ -35,18 +35,13 @@ public class Task6 implements Task {
     Map<Integer, Set<Integer>> personAreaIds,
     Collection<Area> areas
   ) {
-    Map<Integer, String> areasMap = areas
-      .stream()
+    Map<Integer, String> areasMap = areas.stream()
       .collect(Collectors.toMap(Area::getId, area -> area.getName()));
-    return persons
-      .stream()
-      .map(
-        person -> personAreaIds.get(person.getId())
-          .stream()
+    return persons.stream()
+      .flatMap(
+        person -> personAreaIds.get(person.getId()).stream()
           .map(regionId -> person.getFirstName() + " - " + areasMap.get(regionId))
-          .collect(Collectors.toSet())
       )
-      .flatMap(descriptions -> descriptions.stream())
       .collect(Collectors.toSet());
   }
 

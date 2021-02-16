@@ -23,9 +23,8 @@ public class Task4 implements Task {
    * @return persons
    */
   private List<ApiPersonDto> convert(List<Person> persons) {
-    return persons
-      .stream()
-      .map(person -> convert(person))
+    return persons.stream()
+      .map(Task4::convert) // не могу использовать this из-за static?
       .collect(Collectors.toList());
   }
 
